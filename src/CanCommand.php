@@ -37,7 +37,13 @@ class CanCommand extends TerminusCommand implements SiteAwareInterface
         $this->log()->notice("Cantilever initializing...");
 
         //list sites
-        $sites = $this->sites->serialize();
+        $user = $this->session()->getUser();
+        $sites = $this->sites()->fetch(
+            [
+                'org_id' => (isset($options['org']) && ($options['org'] !== 'all')) ? $user->getOrganizationMemberships()->get($options['org'])->getOrganization()->id : null,
+                'team_only' => isset($options['team']) ? $options['team'] : false,
+            ]
+        )->serialize();
 
         if (empty($sites)) {
             $this->log()->notice('You have no sites.');
